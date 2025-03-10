@@ -1,3 +1,5 @@
+import { convertToGIF } from "./gif";
+
 document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
     const videoSrc = params.get("video");
@@ -15,35 +17,17 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     async function convertVideoToGif(video) {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d", { willReadFrequently: true });
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        // const gifBlob =
+        // convertToGIF(video);
+        const gif = await convertToGIF(video);
 
-        const gif = new GIF({
-            workers: 2,
-            quality: 10,
-            workerScript: "external/gif.worker.js"
+        gif.on('finish', async function (blob) {
+            imgElement.src = gif.url ?? URL.createObjectURL(blob);
         });
 
-        video.play();
-        let frameCount = 0;
-        const interval = setInterval(() => {
-            if (frameCount >= video.duration * 10) {
-                clearInterval(interval);
-                gif.render();
-                return;
-            }
+        gif.render();
 
-            ctx.drawImage(video, 0, 0);
-            gif.addFrame(canvas, { copy: true, delay: 100 });
-
-            frameCount++;
-        }, 100);
-
-        gif.on("finished", blob => {
-            imgElement.src = URL.createObjectURL(blob);
-        });
+        console.log(imgElement.src);
     }
 
     function downloadGif(blob) {

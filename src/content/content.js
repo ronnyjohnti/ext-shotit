@@ -1,5 +1,3 @@
-
-
 (async function () {
     try {
         const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
